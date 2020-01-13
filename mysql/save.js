@@ -21,7 +21,7 @@ const areaTb = tablePrefix + 'area'
 const streetTb = tablePrefix + 'street'
 
 const dataCreateSql = `create database IF NOT EXISTS ${database}`
-  // 表格创建SQL
+// 表格创建SQL
 const tableCreateSql = `
 CREATE TABLE IF NOT EXISTS \`${provTb}\` (
 \`code\` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -33,35 +33,38 @@ const tableCreateSql2 = `
 CREATE TABLE IF NOT EXISTS \`${cityTb}\` (
 \`code\` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 \`name\` varchar(32) NOT NULL,
-\`parent_code\` int(11) UNSIGNED NOT NULL,
-PRIMARY KEY(\`code\`), KEY(\`parent_code\`)
+\`provinceCode\` int(11) UNSIGNED NOT NULL,
+PRIMARY KEY(\`code\`), KEY(\`provinceCode\`)
 ) ENGINE=InnoDB  AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='城市表';`
 
 const tableCreateSql3 = `
 CREATE TABLE IF NOT EXISTS \`${areaTb}\` (
 \`code\` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 \`name\` varchar(32) NOT NULL,
-\`parent_code\` int(11) UNSIGNED NOT NULL,
-PRIMARY KEY(\`code\`), KEY(\`parent_code\`)
+\`cityCode\` int(11) UNSIGNED NOT NULL,
+\`provinceCode\` int(11) UNSIGNED NOT NULL,
+PRIMARY KEY(\`code\`), KEY(\`cityCode\`), KEY(\`provinceCode\`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 `
 const tableCreateSql4 = `
 CREATE TABLE IF NOT EXISTS \`${streetTb}\` (
 \`code\` bigint(12) UNSIGNED NOT NULL AUTO_INCREMENT,
 \`name\` varchar(32) NOT NULL,
-\`parent_code\` int(11) UNSIGNED NOT NULL,
-PRIMARY KEY(\`code\`), KEY(\`parent_code\`)
+\`areaCode\` int(11) UNSIGNED NOT NULL,
+\`cityCode\` int(11) UNSIGNED NOT NULL,
+\`provinceCode\` int(11) UNSIGNED NOT NULL,
+PRIMARY KEY(\`code\`), KEY(\`areaCode\`), KEY(\`cityCode\`), KEY(\`provinceCode\`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='街道表';
 `
 
 // 省份数据添加
 var provDataInsertSql = `INSERT INTO \`${provTb}\` (\`code\`, \`name\`) VALUES `
 // 城市数据添加
-var cityDataInsertSql = `INSERT INTO \`${cityTb}\` (\`code\`, \`name\`, \`parent_code\`) VALUES `
+var cityDataInsertSql = `INSERT INTO \`${cityTb}\` (\`code\`, \`name\`, \`provinceCode\`) VALUES `
 // 地区数据添加
-var areaDataInsertSql = `INSERT INTO \`${areaTb}\` (\`code\`, \`name\`, \`parent_code\`) VALUES `
+var areaDataInsertSql = `INSERT INTO \`${areaTb}\` (\`code\`, \`name\`, \`cityCode\`, \`provinceCode\`) VALUES `
 // 街道数据添加
-var streetDataInsertSql = `INSERT INTO \`${streetTb}\` (\`code\`, \`name\`, \`parent_code\`) VALUES `
+var streetDataInsertSql = `INSERT INTO \`${streetTb}\` (\`code\`, \`name\`, \`areaCode\`, \`cityCode\`, \`provinceCode\`) VALUES `
 
 // 省份数据删除
 var provDeleteSql = `DROP TABLE IF EXISTS ${provTb};`
@@ -80,19 +83,19 @@ provDataInsertSql += values.join(',') + ';'
 
 values = []
 cityArray.forEach(function (city) {
-  values.push(`(${city['code']}, '${city['name']}', '${city['parent_code']}')`)
+  values.push(`(${city['code']}, '${city['name']}', '${city['provinceCode']}')`)
 })
 cityDataInsertSql += values.join(',') + ';'
 
 values = []
 areaArray.forEach(function (area) {
-  values.push(`(${area['code']}, '${area['name']}', '${area['parent_code']}')`)
+  values.push(`(${area['code']}, '${area['name']}', '${area['cityCode']}', '${area['provinceCode']}')`)
 })
 areaDataInsertSql += values.join(',') + ';'
 
 values = []
 streetArray.forEach(function (street) {
-  values.push(`(${street['code']}, '${street['name']}', '${street['parent_code']}')`)
+  values.push(`(${street['code']}, '${street['name']}', '${street['areaCode']}', '${street['cityCode']}', '${street['provinceCode']}')`)
 })
 streetDataInsertSql += values.join(',') + ';'
 
@@ -103,7 +106,7 @@ async function execute () {
   const connection = await mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'root'
+    password: 'root123456'
   })
 
   await connection.query(dataCreateSql)
